@@ -30,7 +30,8 @@
   const FORMAT = 'BC-DATAARCHIVE';
   const LEGACY_FORMAT = 'BC-SAVE-VAULT';
   const VERSION = 3; // v3：全新 UI + i18n；v2/v1 备份均可读取
-  const SCRIPT_VERSION = '3.6.0'; // 脚本版本（显示在面板品牌区，与加载器 @version 保持一致）
+  const SCRIPT_VERSION = '3.7.0'; // 脚本版本（显示在面板品牌区，与加载器 @version 保持一致）
+  const PLUGIN_VIEW = 'plugin'; // 虚拟标签：按插件归类
 
   const STORES = [
     { key: 'character', icon: 'avatar' },
@@ -73,11 +74,17 @@
   const I18N = {
     'zh-CN': {
       brand: '归档', brandFull: 'BC 数据备份与恢复工具',
-      tab_character: '角色数据', tab_extensionSettings: '角色设置', tab_onlineSharedSettings: '共享设置', tab_localStorage: '插件数据',
+      tab_character: '角色数据', tab_extensionSettings: '角色设置', tab_onlineSharedSettings: '共享设置', tab_localStorage: '插件数据', tab_plugin: '按插件',
       hint_character: '服务器角色字段：自制道具、外观、金钱、声望、技能、衣柜、主从关系等。恢复会写回服务器，请谨慎操作。',
       hint_extensionSettings: '插件设置（LSCG / BCX / LCE 等），跟随账号同步到服务器。',
       hint_onlineSharedSettings: '账号级共享开关，跟随账号同步到服务器。',
       hint_localStorage: '浏览器本地存储：各插件配置、备注、主题、聊天记录等，清缓存会丢失。',
+      hint_plugin: '按插件归类三个区域的数据，可整包备份某个插件，或一键清空该插件的全部数据。角色数据不在此列。',
+      pluginAreas: '涉及区域', pluginBackup: '备份此插件', pluginWipe: '清空此插件',
+      pluginBackupSel: '备份选中插件', pluginWipeSel: '清空选中插件',
+      pluginBackupDone: '已备份插件「{name}」：{n} 项', pluginWipeTitle: '清空插件数据',
+      pluginWipeIntro: '即将清空「{name}」在以下区域的全部数据，操作不可撤销：',
+      pluginNoSelect: '请先勾选要操作的插件', pluginUnknown: '未识别插件',
       search: '搜索数据键…', backupAll: '一键全量归档', import: '恢复 / 导入', refresh: '刷新',
       colSelect: '选', colName: '名称', colSize: '容量', colActions: '操作',
       backupSelected: '归档选中', deleteSelected: '删除选中', backup: '归档', delete: '删除',
@@ -133,11 +140,17 @@
     },
     'zh-TW': {
       brand: '歸檔', brandFull: 'BC 資料備份與還原工具',
-      tab_character: '角色資料', tab_extensionSettings: '角色設定', tab_onlineSharedSettings: '共享設定', tab_localStorage: '外掛資料',
+      tab_character: '角色資料', tab_extensionSettings: '角色設定', tab_onlineSharedSettings: '共享設定', tab_localStorage: '外掛資料', tab_plugin: '依外掛',
       hint_character: '伺服器角色欄位：自製道具、外觀、金錢、聲望、技能、衣櫃、主從關係等。還原會寫回伺服器，請謹慎操作。',
       hint_extensionSettings: '外掛設定（LSCG / BCX / LCE 等），跟隨帳號同步到伺服器。',
       hint_onlineSharedSettings: '帳號級共享開關，跟隨帳號同步到伺服器。',
       hint_localStorage: '瀏覽器本地儲存：各外掛設定、備註、主題、聊天記錄等，清快取會遺失。',
+      hint_plugin: '依外掛歸類三個區域的資料，可整包備份某個外掛，或一鍵清空該外掛的全部資料。角色資料不在此列。',
+      pluginAreas: '涉及區域', pluginBackup: '備份此外掛', pluginWipe: '清空此外掛',
+      pluginBackupSel: '備份選取外掛', pluginWipeSel: '清空選取外掛',
+      pluginBackupDone: '已備份外掛「{name}」：{n} 項', pluginWipeTitle: '清空外掛資料',
+      pluginWipeIntro: '即將清空「{name}」在以下區域的全部資料，操作不可復原：',
+      pluginNoSelect: '請先勾選要操作的外掛', pluginUnknown: '未識別外掛',
       search: '搜尋資料鍵…', backupAll: '一鍵全量歸檔', import: '還原 / 匯入', refresh: '重新整理',
       colSelect: '選', colName: '名稱', colSize: '容量', colActions: '操作',
       backupSelected: '歸檔選取', deleteSelected: '刪除選取', backup: '歸檔', delete: '刪除',
@@ -193,11 +206,17 @@
     },
     en: {
       brand: 'Archive', brandFull: 'BC Backup & Restore',
-      tab_character: 'Character', tab_extensionSettings: 'Char settings', tab_onlineSharedSettings: 'Shared', tab_localStorage: 'Addon data',
+      tab_character: 'Character', tab_extensionSettings: 'Char settings', tab_onlineSharedSettings: 'Shared', tab_localStorage: 'Addon data', tab_plugin: 'By addon',
       hint_character: 'Server character fields: crafted items, appearance, money, reputation, skills, wardrobe, ownership. Restore writes to the server - use with care.',
       hint_extensionSettings: 'Addon settings (LSCG / BCX / LCE etc.), synced with your account.',
       hint_onlineSharedSettings: 'Account-level shared toggles, synced with your account.',
       hint_localStorage: 'Browser local storage: addon configs, notes, themes, chat logs. Lost when clearing cache.',
+      hint_plugin: 'Group data from three areas by addon. Back up one addon as a whole, or wipe all its data. Character fields are excluded.',
+      pluginAreas: 'Areas', pluginBackup: 'Back up addon', pluginWipe: 'Wipe addon',
+      pluginBackupSel: 'Back up selected', pluginWipeSel: 'Wipe selected',
+      pluginBackupDone: 'Backed up addon "{name}": {n} entries', pluginWipeTitle: 'Wipe addon data',
+      pluginWipeIntro: 'This will wipe all data of "{name}" in the following areas. This cannot be undone:',
+      pluginNoSelect: 'Select at least one addon first', pluginUnknown: 'Unidentified addon',
       search: 'Search data keys...', backupAll: 'Full archive', import: 'Restore / Import', refresh: 'Refresh',
       colSelect: 'Sel', colName: 'Name', colSize: 'Size', colActions: 'Actions',
       backupSelected: 'Archive selected', deleteSelected: 'Delete selected', backup: 'Archive', delete: 'Delete',
@@ -404,6 +423,64 @@
   }
 
   function storeLabel(type) { return t('tab_' + type); }
+
+  /* ═══════════ 按插件归类（虚拟视图）═══════════ */
+  const PLUGIN_AREAS = ['extensionSettings', 'onlineSharedSettings', 'localStorage'];
+  // 把三个非角色区的数据按键名识别结果聚合成插件组
+  // 返回 [{ name, keyPaths:[{type,key,value,size}], areas:Set, count, size }]，按体积降序
+  function buildPluginGroups() {
+    const groups = new Map();
+    for (const type of PLUGIN_AREAS) {
+      const rows = listRows(type);
+      if (!rows) continue;
+      for (const row of rows) {
+        const desc = describeKey(row.key, type);
+        // 用识别出的 name 作为分组键；识别不出用"未识别插件"，但按区域再细分避免全挤一组
+        const gname = desc.name || (t('pluginUnknown') + ' · ' + storeLabel(type));
+        if (!groups.has(gname)) groups.set(gname, { name: gname, items: [], areas: new Set(), count: 0, size: 0 });
+        const g = groups.get(gname);
+        g.items.push({ type, key: row.key, value: row.value, size: row.size });
+        g.areas.add(type);
+        g.count++;
+        g.size += row.size;
+      }
+    }
+    return [...groups.values()].sort((a, b) => b.size - a.size);
+  }
+  // 跨区备份某个/某些插件：把分散在三个区的数据打包成一个 JSON（结构同全量备份，只含选中插件的项）
+  async function backupPlugins(groups, suffix) {
+    if (!groups || !groups.length) return toast(t('pluginNoSelect'), 'warn');
+    const info = accountInfo();
+    const data = {};
+    let count = 0;
+    for (const g of groups) {
+      for (const it of g.items) {
+        if (!data[it.type]) data[it.type] = {};
+        data[it.type][it.key] = it.type === 'character' ? sanitizeRowsForBackup(it.type, [{ key: it.key, value: it.value }])[0].value : it.value;
+        count++;
+      }
+    }
+    info.data = data;
+    info.pluginNames = groups.map(g => g.name);
+    const payload = Object.assign({ format: FORMAT, version: VERSION, storage: 'partial', createdAt: new Date().toISOString(), tool: 'Data Archive (DA)' }, info);
+    const ok = await saveNow(payload, '归档-插件-' + safeFilename(suffix) + '-' + safeFilename(info.account) + '-' + stamp() + '.json');
+    if (!ok) return;
+    showArchiveAnimation(false);
+    toast(t('pluginBackupDone', { name: groups.length === 1 ? groups[0].name : groups.length + ' 个插件', n: count }), 'ok');
+  }
+  // 跨区清空某个/某些插件（调用方负责二次确认）
+  function wipePlugins(groups) {
+    let n = 0;
+    for (const g of groups) {
+      for (const it of g.items) {
+        try { deleteValue(it.type, it.key); n++; }
+        catch (e) { console.warn('[DA] wipe failed', it.type, it.key, e); }
+      }
+    }
+    selected.clear();
+    return n;
+  }
+
 
   /* ═══════════ SVG 图标（全部矢量绘制，无 emoji）═══════════ */
   const svg = (paths, size) => '<svg viewBox="0 0 24 24" width="' + (size || 18) + '" height="' + (size || 18) + '" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + paths + '</svg>';
@@ -1105,6 +1182,94 @@
   }
 
   /* ═══════════ 面板渲染 ═══════════ */
+  // 按插件归类视图：每个插件一张卡片，支持整包备份 / 整包清空
+  function renderPluginView(host, summary) {
+    const groups = buildPluginGroups();
+    const q = (document.getElementById(PREFIX + '-search')?.value || '').trim().toLocaleLowerCase();
+    const visible = q ? groups.filter(g => g.name.toLocaleLowerCase().includes(q)) : groups;
+    // 清理已不存在的选中项
+    const validKeys = new Set(groups.map(g => g.name));
+    for (const k of [...selected]) if (!validKeys.has(k)) selected.delete(k);
+
+    // 汇总
+    summary.replaceChildren();
+    const mk = (label, value) => {
+      const span = document.createElement('span'); span.textContent = label + ' ';
+      const b = document.createElement('b'); b.textContent = value; span.appendChild(b); return span;
+    };
+    const totalItems = groups.reduce((s, g) => s + g.count, 0);
+    const totalSize = groups.reduce((s, g) => s + g.size, 0);
+    summary.append(mk(t('summary') + ':', t('tab_plugin')), mk(t('total') + ':', groups.length + ' ' + t('pluginAreas') + ' / ' + totalItems + ' ' + t('items') + ' / ' + formatBytes(totalSize)), mk(t('selected') + ':', String(selected.size)));
+
+    host.replaceChildren();
+    const cols = document.createElement('div'); cols.className = 'da-columns';
+    const selLabel = document.createElement('label'); selLabel.style.display = 'flex';
+    const selectAll = document.createElement('input'); selectAll.type = 'checkbox'; selectAll.className = 'da-check';
+    selectAll.checked = visible.length > 0 && visible.every(g => selected.has(g.name));
+    selectAll.title = t('selectAll');
+    selectAll.addEventListener('change', () => {
+      for (const g of visible) selectAll.checked ? selected.add(g.name) : selected.delete(g.name);
+      render();
+    });
+    selLabel.appendChild(selectAll); cols.appendChild(selLabel);
+    const nameH = document.createElement('span'); nameH.textContent = t('colName') + ' / ' + t('pluginAreas'); cols.appendChild(nameH);
+    const sizeH = document.createElement('span'); sizeH.textContent = t('colSize'); sizeH.className = 'da-sort-size'; cols.appendChild(sizeH);
+
+    const picked = () => groups.filter(g => selected.has(g.name));
+    const batch = document.createElement('div'); batch.className = 'da-batch';
+    const backupBtn = makeButton(t('pluginBackupSel'), '', () => backupPlugins(picked(), 'selected'), 'download', t('tipBackup'));
+    backupBtn.disabled = selected.size === 0;
+    const wipeBtn = makeButton(t('pluginWipeSel'), 'da-btn-danger', () => {
+      const ps = picked(); if (!ps.length) return;
+      const lines = [];
+      for (const g of ps) {
+        lines.push(g.name + ' — ' + g.count + ' ' + t('items') + ' / ' + formatBytes(g.size) + ' [' + [...g.areas].map(storeLabel).join(', ') + ']');
+        for (const it of g.items.slice(0, 5)) lines.push('  - ' + storeLabel(it.type) + ' / ' + it.key);
+        if (g.items.length > 5) lines.push('    ... +' + (g.items.length - 5));
+      }
+      showConfirmDialog(t('pluginWipeTitle'), t('pluginWipeIntro', { name: ps.length === 1 ? ps[0].name : ps.length + ' 个插件' }), lines, null, () => {
+        const n = wipePlugins(ps);
+        render(); toast(t('deleted', { n }), 'warn');
+      });
+    }, 'trash', t('tipDelete'));
+    wipeBtn.disabled = selected.size === 0;
+    batch.append(backupBtn, wipeBtn); cols.appendChild(batch);
+    host.appendChild(cols);
+
+    if (!visible.length) {
+      const empty = document.createElement('div'); empty.className = 'da-empty';
+      empty.textContent = groups.length ? t('emptySearch') : t('emptyStore');
+      host.appendChild(empty); return;
+    }
+
+    for (const g of visible) {
+      const card = document.createElement('div'); card.className = 'da-row';
+      const cb = document.createElement('input'); cb.type = 'checkbox'; cb.className = 'da-check'; cb.checked = selected.has(g.name);
+      cb.addEventListener('change', () => { cb.checked ? selected.add(g.name) : selected.delete(g.name); render(); });
+      card.appendChild(cb);
+
+      const info = document.createElement('div');
+      const title = document.createElement('div'); title.className = 'da-field-label'; title.textContent = g.name;
+      const meta = document.createElement('div'); meta.className = 'da-field-raw';
+      meta.textContent = t('pluginAreas') + ': ' + [...g.areas].map(storeLabel).join(' · ') + '  |  ' + g.count + ' ' + t('items');
+      info.append(title, meta); card.appendChild(info);
+
+      const sizeEl = document.createElement('div'); sizeEl.className = 'da-size'; sizeEl.textContent = formatBytes(g.size); card.appendChild(sizeEl);
+
+      const actions = document.createElement('div'); actions.className = 'da-actions';
+      actions.appendChild(makeButton(t('pluginBackup'), '', () => backupPlugins([g], g.name), 'download', t('tipBackup')));
+      actions.appendChild(makeButton(t('pluginWipe'), 'da-btn-danger', () => {
+        const lines = g.items.slice(0, 6).map(it => storeLabel(it.type) + ' / ' + it.key);
+        if (g.items.length > 6) lines.push('... +' + (g.items.length - 6));
+        showConfirmDialog(t('pluginWipeTitle'), t('pluginWipeIntro', { name: g.name }), lines, null, () => {
+          const n = wipePlugins([g]);
+          render(); toast(t('deleted', { n }), 'warn');
+        });
+      }, 'trash', t('tipDelete')));
+      card.appendChild(actions); host.appendChild(card);
+    }
+  }
+
   function render() {
     const panel = document.getElementById(PANEL_ID);
     if (!panel) return;
@@ -1139,7 +1304,19 @@
       tab.setAttribute('aria-selected', String(store.key === activeType));
       tabs.appendChild(tab);
     }
+    // 追加「按插件」虚拟标签
+    const pluginTab = makeButton(t('tab_plugin'), 'da-tab' + (activeType === PLUGIN_VIEW ? ' active' : ''), () => {
+      if (activeType === PLUGIN_VIEW) return;
+      activeType = PLUGIN_VIEW; selected.clear();
+      const s = document.getElementById(PREFIX + '-search'); if (s) s.value = '';
+      render();
+    }, 'database');
+    pluginTab.setAttribute('role', 'tab');
+    pluginTab.setAttribute('aria-selected', String(activeType === PLUGIN_VIEW));
+    tabs.appendChild(pluginTab);
     hint.textContent = t('hint_' + activeType);
+
+    if (activeType === PLUGIN_VIEW) { renderPluginView(host, summary); return; }
 
     const all = listRows(activeType);
     const visible = currentRows();

@@ -27,6 +27,7 @@ Packs your BC progress into a JSON file on your own computer, and restores it la
 - **Validation** — flags account mismatch, wrong types, empty or oversized data; invalid entries are disabled
 - **Geek UI** — dark terminal styling, custom checkboxes, hover / long-press tooltips, progress animations
 - **3 languages** — Simplified Chinese / Traditional Chinese / English, switchable in-panel
+- **By-addon view** — a fifth tab groups data from three areas by addon — back up one addon as a single cross-area JSON, or wipe all its data after a confirmation; multi-select supported
 - **Readable names** — English data keys (e.g. `LSCG_Outfits`) show a human-readable label ("LSCG · Outfits") covering 99% of common mods, with the original key kept for reference
 - **Backup reminder** — set Off / every 7 / 15 / 30 days / custom. When due, a banner appears in the panel ("Back up now" / "Remind me later today") plus at most one daily toast after login. Backing up resets the timer. Settings and last-backup time are stored locally
 
