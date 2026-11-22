@@ -3,6 +3,8 @@
 > Bondage Club 的一键数据备份 / 恢复插件。极客风界面、三语适配、导入导出动画。
 >
 > [简体中文](README.md) · [English](README.en.md)
+>
+> 📋 [更新记录 / Changelog](CHANGELOG.md)
 
 [![Install Data Archive](https://img.shields.io/badge/安装-Tampermonkey%20%2F%20Violentmonkey-blue?logo=tampermonkey&logoColor=white)](https://raw.githubusercontent.com/heitaoplay/BC-DataArchive/main/BC-DataArchive.user.js)
 

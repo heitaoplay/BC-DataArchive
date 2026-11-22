@@ -1,6 +1,8 @@
 # Data Archive · DA — BC Backup & Restore
 
 > A Bondage Club userscript to back up and restore your in-game data. Geek-styled UI, 3 languages, animated import/export.
+>
+> 📋 [Changelog](CHANGELOG.md) · [简体中文](README.md)
 
 [![Install Data Archive](https://img.shields.io/badge/Install-Tampermonkey%20%2F%20Violentmonkey-blue?logo=tampermonkey&logoColor=white)](https://raw.githubusercontent.com/heitaoplay/BC-DataArchive/main/BC-DataArchive.user.js)
 
