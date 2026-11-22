@@ -30,7 +30,7 @@
   const FORMAT = 'BC-DATAARCHIVE';
   const LEGACY_FORMAT = 'BC-SAVE-VAULT';
   const VERSION = 3; // v3：全新 UI + i18n；v2/v1 备份均可读取
-  const SCRIPT_VERSION = '3.7.0'; // 脚本版本（显示在面板品牌区，与加载器 @version 保持一致）
+  const SCRIPT_VERSION = '3.7.1'; // 脚本版本（显示在面板品牌区，与加载器 @version 保持一致）
   const PLUGIN_VIEW = 'plugin'; // 虚拟标签：按插件归类
 
   const STORES = [
@@ -1589,6 +1589,8 @@
 
     // 二级确认弹窗（极客风，替换原生 confirm）
     const showSecondConfirm = (picked) => {
+      // 防重复：已有二级确认弹窗就不再创建（避免连点产生多个叠在一起）
+      if (document.querySelector('.da-modal-backdrop-2')) return;
       const b2 = document.createElement('div'); b2.className = 'da-modal-backdrop da-modal-backdrop-2';
       const m2 = document.createElement('section'); m2.className = 'da-modal'; m2.style.width = 'min(620px,100%)';
       const h2 = document.createElement('div'); h2.className = 'da-modal-head'; h2.textContent = t('checkTitle');
@@ -1630,7 +1632,7 @@
         else if (ok && picked.some(p => p.type !== 'localStorage')) toast(t('acctSynced'), 'warn');
       }, 'upload');
       acts.append(cancel2, confirm2);
-      m2.append(h2, body, acts); b2.appendChild(m2); panel.appendChild(b2);
+      m2.append(h2, body, acts); b2.appendChild(m2); document.body.appendChild(b2);
     };
 
     const actions = document.createElement('div'); actions.className = 'da-modal-actions';
