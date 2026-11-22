@@ -4,6 +4,23 @@
 
 ---
 
+## 架构升级 — 改为 NFT 同款「加载器 + GitHub Pages」自动更新模式
+
+**变更**：油猴里安装的脚本从 110KB 的完整包改成 **2KB 轻量加载器**；核心逻辑拆到 `src/BC-DataArchive.js`，由 `build.cjs` 构建成根目录 `BC-DataArchive.js`，经 GitHub Pages 发布。
+
+**更新方式**：加载器每次打开 BC 页面都 `import(CDN + '?v=时间戳')` 动态拉取 Pages 上的核心代码。作者 push 后，用户**刷新页面即生效**，不需要在油猴里手动检查更新或重装。与个人其他 BC 插件（NFT-i18n 等）保持完全一致的模式。
+
+**文件结构**：
+```
+BC-DataArchive.user.js  ← 油猴装这个（2KB 加载器）
+BC-DataArchive.js       ← Pages 发布的核心（构建产物，勿手改）
+src/BC-DataArchive.js   ← 核心源码
+build.cjs               ← 构建脚本：src → 根目录
+```
+改动核心逻辑的流程：改 `src/BC-DataArchive.js` → `node build.cjs` → 提交并 push 两个文件。
+
+---
+
 ## v3.3.4 — 修复弹窗被主面板遮挡
 
 **问题**：点「一键全量归档」后弹出的范围选择窗口被主面板盖住，必须关掉主窗口才看得到。

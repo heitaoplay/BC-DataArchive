@@ -8,7 +8,7 @@
 
 Click the badge to open the raw script and get the Tampermonkey / Violentmonkey install prompt — no copy-paste.
 
-**Auto-update**: the script is loaded straight from GitHub raw. Tampermonkey checks for updates automatically; pushing a new version means everyone gets it on refresh, no manual reinstall.
+**Auto-update**: Tampermonkey holds only a 2KB loader; the core code lives on GitHub Pages. Every BC page load dynamically imports the latest core (with a cache-busting timestamp) — after the author pushes, **just refresh the page**, no manual Tampermonkey update or reinstall.
 
 ## What it does
 
