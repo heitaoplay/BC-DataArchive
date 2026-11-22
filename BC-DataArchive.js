@@ -30,7 +30,7 @@
   const FORMAT = 'BC-DATAARCHIVE';
   const LEGACY_FORMAT = 'BC-SAVE-VAULT';
   const VERSION = 3; // v3：全新 UI + i18n；v2/v1 备份均可读取
-  const SCRIPT_VERSION = '3.5.1'; // 脚本版本（显示在面板品牌区，与加载器 @version 保持一致）
+  const SCRIPT_VERSION = '3.6.0'; // 脚本版本（显示在面板品牌区，与加载器 @version 保持一致）
 
   const STORES = [
     { key: 'character', icon: 'avatar' },
@@ -286,6 +286,123 @@
     const f = CHARACTER_FIELDS.find(x => x.key === key);
     return f ? (f.label[currentLang] || f.label['zh-CN']) : key;
   }
+  // 插件键名识别表：前缀(大写) → { cn: 中文名, en: 英文名 }
+  // 有官方中文名的用中文（LCE/FCM/e宝/小苏活动等），没有的保留缩写并给类型标注
+  const PLUGIN_NAMES = {
+    // liko 系
+    LCE: { cn: 'LCE 容量管理', en: 'LCE' }, AFC: { cn: 'AFC 恋人系统', en: 'AFC' },
+    FCM: { cn: 'FCM 好友管理', en: 'FCM' }, HSC: { cn: 'HSC 主奴系统', en: 'HSC' },
+    AEE: { cn: 'AEE 服装扩展', en: 'AEE' }, PEX: { cn: 'PEX 扩展', en: 'PEX' },
+    LIKOTOOL: { cn: 'Liko 工具箱', en: 'Liko Tool' }, LIKO: { cn: 'Liko 插件', en: 'Liko' },
+    LIKOKAOMOJI: { cn: 'Liko 颜文字', en: 'Liko Kaomoji' }, KAOMOJI: { cn: '颜文字', en: 'Kaomoji' },
+    LIKOCHATROOMBUTTON: { cn: 'Liko 聊天室按钮', en: 'Liko Chat Buttons' },
+    LIKOIMAGEUPLOADER: { cn: 'Liko 图片上传', en: 'Liko Image Uploader' },
+    LIKO_AEE: { cn: 'Liko AEE 服装', en: 'Liko AEE' },
+    LIKOAEE: { cn: 'Liko AEE 服装', en: 'Liko AEE' },
+    // 主流大插件
+    BCX: { cn: 'BCX 扩展', en: 'BCX' }, BCTOOLBOX: { cn: 'BC 工具箱', en: 'BC Toolbox' },
+    BCT: { cn: 'BC 工具箱', en: 'BC Toolbox' }, LSCG: { cn: 'LSCG 调教游戏', en: 'LSCG' },
+    DOGS: { cn: 'DOGS 训练系统', en: 'DOGS' }, BCWOLFGIRL: { cn: '狼女训练套装', en: 'BC WolfGirl' },
+    GGC: { cn: 'GGC 群聊/赌场', en: 'GGC' }, CLUBGAMING: { cn: 'GGC 群聊/赌场', en: 'GGC' },
+    EBC: { cn: 'EmeryBC 增强', en: 'EmeryBC' }, EBCH: { cn: 'EmeryBC 增强', en: 'EmeryBC' },
+    EMERYBC: { cn: 'EmeryBC 增强', en: 'EmeryBC' }, HCR: { cn: 'HCR 插件', en: 'HCR' },
+    QIACT: { cn: 'QiAct 互动增强', en: 'QiAct' }, XSA: { cn: 'XSA 扩展', en: 'XSA' },
+    XSACT: { cn: '小苏活动 (XSAct)', en: 'XiaoSu Activity' },
+    // 服装 / 衣柜类
+    FBC: { cn: 'FBC 衣柜', en: 'FBC' }, FBCWARDROBE: { cn: 'FBC 衣柜', en: 'FBC Wardrobe' },
+    ECHOCLOTHINGCACHE: { cn: 'e宝/回声 服装缓存', en: 'Echo Clothing Cache' },
+    ECHOITEMPERMISSIONCACHE: { cn: 'e宝/回声 道具权限缓存', en: 'Echo Item Permission' },
+    ECHO: { cn: 'e宝/回声 活动扩展', en: 'Echo' }, EBC动作拓展: { cn: 'e宝/回声 动作扩展', en: 'Echo Actions' },
+    VPW: { cn: 'Vivian 便携衣柜', en: 'Vivian Portable Wardrobe' },
+    VPWARDROBE: { cn: 'Vivian 便携衣柜', en: 'Vivian Portable Wardrobe' },
+    WARDROBEPLUS: { cn: 'WardrobePlus 衣柜', en: 'WardrobePlus' },
+    OUTFITMANAGER: { cn: '套装管理器', en: 'OutfitManager' },
+    FHC: { cn: 'FHC 服装', en: 'FHC' }, LITTLISH: { cn: 'Littlish 小个子', en: 'Littlish' },
+    // 聊天 / 通知类
+    BCE: { cn: 'BCE 即时通讯', en: 'BCE Messenger' }, BCEINSTANTMESSENGER: { cn: 'BCE 即时通讯', en: 'BCE Messenger' },
+    BCP: { cn: 'BCP 私聊', en: 'BCP' }, BCHP: { cn: 'BCHP 插件', en: 'BCHP' },
+    BCNOTIFYPLUSSETTING: { cn: 'BC 通知增强', en: 'BC Notify Plus' },
+    NOTIFYONINVITE: { cn: '邀请提醒', en: 'Notify on Invite' },
+    FLOATINGMESSAGEBUTTON: { cn: '浮动消息按钮', en: 'Floating Message' },
+    SLIMEBEEP: { cn: '史莱姆呼叫增强', en: 'SlimeBeep' },
+    KIKILINK: { cn: 'KikiLink 好友同步', en: 'KikiLink' },
+    // 界面 / 主题 / 工具
+    RAZORWINGS: { cn: 'Razor Wings 翼装', en: 'Razor Wings' }, RW: { cn: 'Razor Wings 翼装', en: 'Razor Wings' },
+    THEMED: { cn: '主题切换', en: 'Themed' }, APP: { cn: '界面主题', en: 'App Theme' },
+    RESPONSIVE: { cn: '响应式界面', en: 'Responsive' }, BCRESPONSIVEDATA: { cn: '响应式界面', en: 'Responsive' },
+    SK: { cn: 'Sky 主题', en: 'Sky Theme' }, SKYZHYPNO: { cn: 'Sky 催眠', en: 'SkyzHypno' },
+    MBS: { cn: 'MBS 插件', en: 'MBS' }, MPA: { cn: 'MPA 插件', en: 'MPA' },
+    PCM: { cn: 'PCM 插件管理', en: 'PCM' }, BMM: { cn: 'BC 模组管理器', en: 'BC Mod Manager' },
+    FUSAM: { cn: 'FuSam 插件管理', en: 'FuSam' }, STUDIO: { cn: 'Studio 创作室', en: 'Studio' },
+    GLDRAW: { cn: 'GL 绘图增强', en: 'GLDraw' }, DDT: { cn: 'DD 文本工具', en: 'DD Text Tools' },
+    CRABS: { cn: 'CRABS 插件', en: 'CRABS' }, ER: { cn: 'ER 插件', en: 'ER' },
+    CHE: { cn: 'CHE 插件', en: 'CHE' }, MBCFS: { cn: 'MBCFS 插件', en: 'MBCFS' },
+    SHUANG: { cn: 'Shuang 插件', en: 'Shuang' }, REGIONSWITCH: { cn: '地区切换', en: 'Region Switch' },
+    SEIDRROOMMANAGER: { cn: 'Seidr 房间管理', en: 'Seidr Room Manager' },
+    BCNEKOENHANCER: { cn: 'BC 猫娘增强', en: 'BC Neko Enhancer' },
+    WCEOVERRIDES: { cn: 'WCE 覆盖', en: 'WCE Overrides' }, ULTIMATESUB: { cn: '终极从属', en: 'UltimateSub' },
+    // 游戏 / 其他
+    KINKYDUNGEON: { cn: 'KinkyDungeon 地牢', en: 'KinkyDungeon' },
+    KD: { cn: 'KinkyDungeon 地牢', en: 'KinkyDungeon' }, FARMHAND: { cn: '农场助手', en: 'Farmhand' },
+    WHEELFORTUNE: { cn: '幸运转盘', en: 'Wheel Fortune' }, PATALL: { cn: 'PAT All 全能拍拍', en: 'PAT All' },
+    HEARTLOCK: { cn: '心锁', en: 'HeartLock' }, HL: { cn: '心锁', en: 'HeartLock' },
+    NFT: { cn: 'NFT 手持道具保存', en: 'NFT' }, MPL: { cn: 'MPL 插件', en: 'MPL' },
+    DA: { cn: '归档 DA（本插件）', en: 'Data Archive' }, BCVR: { cn: 'BC VR 头显', en: 'BC VR' },
+    BCC: { cn: 'BC 聊天增强', en: 'BCC' }, CIA: { cn: 'CIA 插件', en: 'CIA' },
+    ABCL: { cn: 'ABCL 插件', en: 'ABCL' }, BCTSETTINGS: { cn: 'BCT 设置', en: 'BCT' },
+    ARGUS: { cn: 'Argus 反作弊', en: 'Argus' }, LC: { cn: 'LC 插件', en: 'LC' },
+    UBC: { cn: 'UBC 插件', en: 'UBC' }, TP: { cn: '传送列表', en: 'TP List' },
+    CMC: { cn: 'CMC 控制器', en: 'CMC' }, CUSTOMPROFILEBG: { cn: '自定义资料背景', en: 'Custom Profile BG' },
+    ARGUSXSS: { cn: 'Argus 反作弊', en: 'Argus' },
+    BCAR: { cn: 'BC 房间增强', en: 'BCAR' }, DTS: { cn: 'DTS 插件', en: 'DTS' },
+    MOONCE: { cn: 'MoonCE 插件', en: 'MoonCE' }, CDB: { cn: 'CDB 增强', en: 'CDB Enhanced' },
+    BCITEMSAVER: { cn: 'BC 道具保存', en: 'BC ItemSaver' }, BCMOANER: { cn: 'BC 呻吟增强', en: 'BC Moaner' },
+    BCCFP: { cn: 'BC 自定义字段', en: 'BC CFP' }, TEA: { cn: '系统缓存', en: 'System Cache' },
+    UWALL: { cn: '用户墙', en: 'Uwall' }, ULIST: { cn: '用户列表', en: 'Ulist' },
+    // 游戏原生设置（共享设置里）
+    GAMEVERSION: { cn: '游戏版本', en: 'Game Version' }, SCRIPT: { cn: '脚本权限', en: 'Script Permissions' },
+    ALLOW: { cn: '权限开关', en: 'Permission' }, DISABLE: { cn: '权限开关', en: 'Permission' },
+    BLOCK: { cn: '权限开关', en: 'Permission' }, ITEMSAFFECTEXPRESSIONS: { cn: '道具影响表情', en: 'Items Affect Expressions' },
+    LOCK: { cn: '锁具设置', en: 'Lock Settings' },
+  };
+  // 功能后缀/关键词 → 中文说明（小写匹配，出现在键名里即命中）
+  const FEATURE_HINTS = [
+    [/_outfits?$|outfit/i, '套装'], [/cache/i, '缓存'], [/backup/i, '备份'],
+    [/settings?|_config|\.settings|_prefs?$/i, '设置'], [/theme|colour|color/i, '主题/配色'],
+    [/_pos$|position|geometry|offset|panel|fab|modal/i, '界面位置'],
+    [/_lang$|language|locale|i18n|translation/i, '语言'], [/_stats?$|^stats?$/i, '统计'],
+    [/unlock|util_/i, '解锁功能'], [/history|log|recent/i, '历史记录'],
+    [/friend|peoplemet|presence/i, '好友/社交'], [/money|ledger|bank/i, '金钱账本'],
+    [/_data$|_db$/i, '数据'], [/migrat/i, '迁移标记'], [/expand|collapsed|hidden/i, '面板展开状态'],
+  ];
+  // 反推键名的中文说明：{ name: 插件/来源名, feature: 功能说明, text: 完整一行 }
+  function describeKey(key, type) {
+    const upper = (key || '').toUpperCase().replace(/[^A-Z0-9_\u4e00-\u9fa5:]/g, '_');
+    // 最长前缀匹配（先用原样，再用去下划线归一化版兜底）
+    const flat = upper.replace(/_/g, '');
+    let plugin = null, matched = '';
+    for (const prefix of Object.keys(PLUGIN_NAMES)) {
+      const p = prefix.toUpperCase();
+      const pf = p.replace(/_/g, '');
+      const hitRaw = upper === p || (upper.startsWith(p) && /^[_.\-:\u4e00-\u9fa5A-Z0-9]/.test(upper.slice(p.length)));
+      const hitFlat = flat.startsWith(pf) && pf.length >= 4;
+      if (hitRaw || hitFlat) {
+        const score = hitRaw ? p.length : pf.length;
+        if (score > matched.length) { plugin = PLUGIN_NAMES[prefix]; matched = hitRaw ? p : pf; }
+      }
+    }
+    // 功能后缀
+    let feature = '';
+    for (const [re, label] of FEATURE_HINTS) {
+      if (re.test(key)) { feature = label; break; }
+    }
+    const name = plugin ? (plugin.cn || plugin.en) : null;
+    if (name && feature) return { name, feature, text: name + ' · ' + feature };
+    if (name) return { name, feature: '', text: name + (type === 'localStorage' ? ' · 本地数据' : ' · 配置') };
+    if (feature) return { name: '', feature, text: feature + '数据' };
+    return { name: '', feature: '', text: '' }; // 兜底由调用方处理
+  }
+
   function storeLabel(type) { return t('tab_' + type); }
 
   /* ═══════════ SVG 图标（全部矢量绘制，无 emoji）═══════════ */
@@ -1114,7 +1231,14 @@
         if (isHighRisk(activeType, row.key)) {
           const risk = document.createElement('span'); risk.className = 'da-risk'; risk.textContent = t('riskHigh'); label.appendChild(risk);
         }
-      } else { keyEl.className = 'da-key'; keyEl.textContent = row.key; }
+      } else {
+        // 插件键名：中文说明（主）+ 原始键名（小字），识别不出则标注"插件数据"
+        const desc = describeKey(row.key, activeType);
+        const label = document.createElement('div'); label.className = 'da-field-label';
+        label.textContent = desc.text || (storeLabel(activeType).replace(/数据|设置$/, '') + ' · 插件数据');
+        const raw = document.createElement('div'); raw.className = 'da-field-raw'; raw.textContent = row.key;
+        keyEl.append(label, raw);
+      }
       keyEl.title = row.key; card.appendChild(keyEl);
 
       const sizeEl = document.createElement('div'); sizeEl.className = 'da-size'; sizeEl.textContent = formatBytes(row.size); card.appendChild(sizeEl);
@@ -1246,8 +1370,8 @@
         const nameWrap = document.createElement('div');
         const tag = document.createElement('div'); tag.className = 'da-imp-type'; tag.textContent = zone;
         const name = document.createElement('div'); name.className = 'da-imp-key';
-        const label = isChar(group.type) ? fieldLabel(row.key) : row.key;
-        name.textContent = label; name.title = isChar(group.type) ? label + ' (' + row.key + ')' : row.key;
+        const label = isChar(group.type) ? fieldLabel(row.key) : (describeKey(row.key, group.type).text || row.key);
+        name.textContent = label; name.title = row.key;
         if (highRisk) { const r = document.createElement('span'); r.className = 'da-risk'; r.textContent = t('riskHigh'); name.appendChild(r); }
         const badge = document.createElement('span');
         badge.className = 'da-val da-val-' + v.level;
@@ -1296,7 +1420,7 @@
       const list2 = document.createElement('div'); list2.className = 'da-confirm-list';
       for (const row of picked) {
         const d = document.createElement('div');
-        const label = row.type === 'character' ? fieldLabel(row.key) : row.key;
+        const label = row.type === 'character' ? fieldLabel(row.key) : (describeKey(row.key, row.type).text || row.key);
         d.textContent = '> ' + storeLabel(row.type) + ' / ' + label + '  (' + formatBytes(row.size) + ')';
         list2.appendChild(d);
       }
