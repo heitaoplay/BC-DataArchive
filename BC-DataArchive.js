@@ -101,6 +101,14 @@
       acctSynced: '账号设置已同步，若未立即刷新请切换页面或重新登录',
       noSelect: '请先勾选要归档的数据', backupDone: '已归档 {n} 项（{size}）',
       allDone: '全量归档完成：共 {n} 项，{z} 个区域',
+      remindTitle: '备份提醒', remindSetting: '提醒设置',
+      remindDesc: '距上次备份已经 {n} 天了，建议归档一次以防数据丢失。',
+      remindNever: '还没有备份记录，建议现在做一次全量归档。',
+      remindNow: '立即备份', remindLater: '今天不提醒',
+      remindOff: '关闭提醒', remind7: '每 7 天', remind15: '每 15 天', remind30: '每 30 天', remindCustom: '自定义天数',
+      remindCustomHint: '输入天数（1-365）', remindSaved: '提醒设置已保存：{v}',
+      remindToast: '该备份了！距上次归档已 {n} 天，点 DA 面板查看详情。',
+      remindLastBackup: '上次备份：{date}', remindNeverBackup: '尚无备份记录',
       savedTo: '已保存到：{path}', savedDownload: '已触发下载：{name}（请到浏览器下载目录查看）',
       saveCancelled: '已取消保存，归档未写入磁盘', saveFailed: '保存失败：{err}',
       tipBackupAll: '先勾选要归档的区域（可全选），再打包成一个 JSON 文件保存到你的电脑。不上传云端；换设备时把文件拷过去，用「恢复/导入」读取。',
@@ -153,6 +161,14 @@
       acctSynced: '帳號設定已同步，若未立即重新整理請切換頁面或重新登入',
       noSelect: '請先勾選要歸檔的資料', backupDone: '已歸檔 {n} 項（{size}）',
       allDone: '全量歸檔完成：共 {n} 項，{z} 個區域',
+      remindTitle: '備份提醒', remindSetting: '提醒設定',
+      remindDesc: '距上次備份已經 {n} 天了，建議歸檔一次以防資料遺失。',
+      remindNever: '還沒有備份記錄，建議現在做一次全量歸檔。',
+      remindNow: '立即備份', remindLater: '今天不提醒',
+      remindOff: '關閉提醒', remind7: '每 7 天', remind15: '每 15 天', remind30: '每 30 天', remindCustom: '自訂天數',
+      remindCustomHint: '輸入天數（1-365）', remindSaved: '提醒設定已儲存：{v}',
+      remindToast: '該備份了！距上次歸檔已 {n} 天，點 DA 面板查看詳情。',
+      remindLastBackup: '上次備份：{date}', remindNeverBackup: '尚無備份記錄',
       savedTo: '已儲存至：{path}', savedDownload: '已觸發下載：{name}（請至瀏覽器下載目錄查看）',
       saveCancelled: '已取消儲存，歸檔未寫入磁碟', saveFailed: '儲存失敗：{err}',
       tipBackupAll: '先勾選要歸檔的區域（可全選），再打包成一個 JSON 檔案保存到你的電腦。不上傳雲端；換裝置時把檔案拷過去，用「還原/匯入」讀取。',
@@ -205,6 +221,14 @@
       acctSynced: 'Account settings synced; switch page or re-login if not updated',
       noSelect: 'Select entries to archive first', backupDone: 'Archived {n} entries ({size})',
       allDone: 'Full archive complete: {n} entries across {z} areas',
+      remindTitle: 'Backup reminder', remindSetting: 'Reminder settings',
+      remindDesc: 'It has been {n} days since your last backup. Archive again to avoid data loss.',
+      remindNever: 'No backup yet — consider a full archive now.',
+      remindNow: 'Back up now', remindLater: 'Remind me later today',
+      remindOff: 'Off', remind7: 'Every 7 days', remind15: 'Every 15 days', remind30: 'Every 30 days', remindCustom: 'Custom days',
+      remindCustomHint: 'Days (1-365)', remindSaved: 'Reminder saved: {v}',
+      remindToast: 'Time to back up! {n} days since last archive — open the DA panel.',
+      remindLastBackup: 'Last backup: {date}', remindNeverBackup: 'No backup yet',
       savedTo: 'Saved to: {path}', savedDownload: 'Download started: {name} (check your browser download folder)',
       saveCancelled: 'Save cancelled; nothing was written to disk', saveFailed: 'Save failed: {err}',
       tipBackupAll: 'Choose which areas to archive (or select all), then pack them into one JSON file saved to your computer. Nothing is uploaded; on a new device, copy the file and use Restore/Import.',
@@ -548,6 +572,8 @@
         const writable = await handle.createWritable();
         await writable.write(text);
         await writable.close();
+        markBackedUp();
+        document.getElementById(PREFIX + '-remind')?.remove();
         toast(t('savedTo', { path: handle.name }), 'ok');
         return true;
       } catch (err) {
@@ -563,6 +589,8 @@
       link.href = url; link.download = filename;
       document.body.appendChild(link); link.click(); link.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
+      markBackedUp();
+      document.getElementById(PREFIX + '-remind')?.remove();
       toast(t('savedDownload', { name: filename }), 'warn');
       return true;
     } catch (err) {
@@ -680,6 +708,118 @@
     });
   }
 
+  /* ═══════════ 备份提醒 ═══════════ */
+  const REMIND_DAYS_KEY = PREFIX + '-remind-days';
+  const LAST_BACKUP_KEY = PREFIX + '-last-backup';
+  const REMIND_TOAST_DAY_KEY = PREFIX + '-remind-toast-day';
+  function getRemindDays() {
+    try {
+      const v = localStorage.getItem(REMIND_DAYS_KEY);
+      return v === null ? 7 : Math.max(0, Math.min(365, parseInt(v, 10) || 0));
+    } catch (_) { return 7; }
+  }
+  function setRemindDays(days) {
+    try { localStorage.setItem(REMIND_DAYS_KEY, String(days)); } catch (_) {}
+  }
+  function markBackedUp() {
+    try { localStorage.setItem(LAST_BACKUP_KEY, String(Date.now())); } catch (_) {}
+  }
+  function daysSinceBackup() {
+    try {
+      const raw = localStorage.getItem(LAST_BACKUP_KEY);
+      if (!raw) return null;
+      const ts = parseInt(raw, 10);
+      if (!ts || isNaN(ts)) return null;
+      return Math.floor((Date.now() - ts) / 86400000);
+    } catch (_) { return null; }
+  }
+  // 是否该提醒：关闭则不提醒；无记录则提醒；超过间隔则提醒
+  function shouldRemind() {
+    const days = getRemindDays();
+    if (days === 0) return { due: false, days: null };
+    const since = daysSinceBackup();
+    return { due: since === null || since >= days, days: since };
+  }
+  function lastBackupText() {
+    const since = daysSinceBackup();
+    if (since === null) return t('remindNeverBackup');
+    try {
+      const ts = parseInt(localStorage.getItem(LAST_BACKUP_KEY), 10);
+      const d = new Date(ts);
+      return t('remindLastBackup', { date: d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
+    } catch (_) { return t('remindNeverBackup'); }
+  }
+  // 面板顶部横幅：只在打开面板时渲染一次；显示"立即备份 / 今天不提醒"
+  function renderReminderBanner(panel) {
+    document.getElementById(PREFIX + '-remind')?.remove();
+    const { due, days } = shouldRemind();
+    if (!due) return;
+    const bar = document.createElement('div'); bar.className = 'da-remind'; bar.id = PREFIX + '-remind';
+    const ico = document.createElement('span'); ico.className = 'da-remind-ico'; ico.innerHTML = ICONS.alert;
+    const text = document.createElement('span'); text.className = 'da-remind-text';
+    text.textContent = (days === null ? t('remindNever') : t('remindDesc', { n: days })) + '  ' + lastBackupText();
+    const nowBtn = makeButton(t('remindNow'), 'da-btn-primary', () => showScopeDialog(), 'archive');
+    const laterBtn = makeButton(t('remindLater'), '', () => {
+      try { localStorage.setItem(REMIND_TOAST_DAY_KEY, new Date().toDateString()); } catch (_) {}
+      bar.remove();
+    });
+    bar.append(ico, text, nowBtn, laterBtn);
+    // 插到 hint 之后、toolbar 之前
+    const hint = panel.querySelector('.da-hint');
+    if (hint) hint.after(bar); else panel.insertBefore(bar, panel.firstChild);
+  }
+  // 页面加载后的一次性 toast（每自然日最多一次，避免反复打扰）
+  function maybeRemindToast() {
+    const { due, days } = shouldRemind();
+    if (!due) return;
+    const today = new Date().toDateString();
+    try {
+      if (localStorage.getItem(REMIND_TOAST_DAY_KEY) === today) return;
+      localStorage.setItem(REMIND_TOAST_DAY_KEY, today);
+    } catch (_) {}
+    toast(days === null ? t('remindNever') : t('remindToast', { n: days }), 'warn');
+  }
+  // 提醒设置弹窗：关闭 / 7 / 15 / 30 / 自定义
+  function showRemindSettings() {
+    if (document.querySelector('.da-remind-setting-modal')) return;
+    const bd = document.createElement('div'); bd.className = 'da-modal-backdrop da-remind-setting-modal';
+    const m = document.createElement('section'); m.className = 'da-modal'; m.style.width = 'min(460px,100%)';
+    const h = document.createElement('div'); h.className = 'da-modal-head'; h.textContent = t('remindSetting');
+    const body = document.createElement('div'); body.className = 'da-remind-settings';
+    const sel = document.createElement('select');
+    const opts = [[0, t('remindOff')], [7, t('remind7')], [15, t('remind15')], [30, t('remind30')], [-1, t('remindCustom')]];
+    const cur = getRemindDays();
+    for (const [v, label] of opts) {
+      const o = document.createElement('option'); o.value = String(v); o.textContent = label;
+      o.selected = v === cur || (v === -1 && cur > 0 && ![7,15,30].includes(cur));
+      sel.appendChild(o);
+    }
+    const custom = document.createElement('input'); custom.type = 'number'; custom.min = '1'; custom.max = '365';
+    custom.placeholder = t('remindCustomHint');
+    custom.style.display = sel.value === '-1' ? '' : 'none';
+    if (sel.value === '-1') custom.value = String(cur);
+    sel.addEventListener('change', () => { custom.style.display = sel.value === '-1' ? '' : 'none'; });
+    body.append(sel, custom);
+    const info = document.createElement('div'); info.className = 'da-remind-info'; info.textContent = lastBackupText();
+    const acts = document.createElement('div'); acts.className = 'da-modal-actions';
+    acts.append(
+      makeButton(t('cancel'), '', () => bd.remove()),
+      makeButton(t('confirmRestore'), 'da-btn-primary', () => {
+        let days = parseInt(sel.value, 10);
+        if (days === -1) {
+          days = Math.max(1, Math.min(365, parseInt(custom.value, 10) || 7));
+        }
+        setRemindDays(days);
+        toast(t('remindSaved', { v: days === 0 ? t('remindOff') : days + ' 天' }), 'ok');
+        bd.remove();
+        // 立即刷新面板横幅
+        const panel = document.getElementById(PANEL_ID);
+        if (panel) renderReminderBanner(panel);
+      })
+    );
+    m.append(h, body, info, acts); bd.appendChild(m); document.body.appendChild(bd);
+  }
+
   /* ═══════════ 样式（极客终端风）═══════════ */
   function injectStyle() {
     if (document.getElementById(STYLE_ID)) return;
@@ -713,6 +853,13 @@
 .da-tab.active .da-ico{opacity:1}
 .da-tab.active::after{content:'';position:absolute;left:12px;right:12px;bottom:0;height:2px;background:#5b9bd5;box-shadow:0 0 10px #5b9bd5}
 .da-hint{flex:none;padding:8px 20px;background:#0d1c30;border-bottom:1px solid #1a3352;color:#7f9dc0;font-size:11px;line-height:1.5}
+.da-remind{flex:none;display:flex;align-items:center;gap:10px;padding:9px 16px;background:linear-gradient(90deg,#3a2812,#2a1e0f);border-bottom:1px solid #a86a2a;color:#ffd9a0;font-size:11px;line-height:1.5}
+.da-remind .da-remind-ico{display:flex;color:#ffb454;flex-shrink:0}
+.da-remind .da-remind-text{flex:1;min-width:0}
+.da-remind .da-btn{min-height:24px;padding:3px 9px;font-size:11px;flex-shrink:0}
+.da-remind-settings{flex:none;display:flex;align-items:center;gap:8px;padding:12px 20px;border-bottom:1px solid #1a3352}
+.da-remind-settings select,.da-remind-settings input{flex:1;padding:6px 9px;border:1px solid #274563;border-radius:4px;background:#0d1a2c;color:#dcefff;font:inherit;font-size:12px}
+.da-remind-info{flex:none;padding:6px 20px;color:#6f8bb0;font-size:10px}
 .da-hint::before{content:'// ';color:#4a7fb5}
 .da-toolbar{display:flex;align-items:center;gap:10px;flex:none;padding:12px 18px;background:#0a1322;flex-wrap:wrap;border-bottom:1px solid #162b45}
 .da-search{flex:1;min-width:180px;padding:9px 12px 9px 34px;border:1px solid #274563;border-radius:5px;background:#070f1c;color:#c9d9ef;font:inherit;font-size:12px;outline:none;transition:.15s;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236f8bb0' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M16.5 16.5L21 21'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:10px center;background-size:15px}
@@ -1244,8 +1391,9 @@
     langSel.addEventListener('change', () => setLang(langSel.value));
     langBox.appendChild(langSel);
 
+    const remindBtn = makeButton('', 'da-icon-btn', showRemindSettings, 'alert', t('remindSetting'));
     const closeBtn = makeButton('', 'da-icon-btn', () => panel.remove(), 'close', 'ESC');
-    head.append(brand, spacer, langBox, closeBtn);
+    head.append(brand, spacer, remindBtn, langBox, closeBtn);
 
     const tabs = document.createElement('nav'); tabs.className = 'da-tabs'; tabs.setAttribute('role', 'tablist');
     const hint = document.createElement('div'); hint.className = 'da-hint';
@@ -1268,6 +1416,7 @@
     panel.append(head, tabs, hint, toolbar, list, summary);
     document.body.appendChild(panel);
     render();
+    renderReminderBanner(panel);
   }
 
   function togglePanel() {
@@ -1449,6 +1598,9 @@
     }
   }
   waitAndRegister(0);
+
+  // 登录就绪后检查备份提醒（每自然日最多 toast 一次）
+  setTimeout(() => { if (playerReady() && Player.MemberNumber) maybeRemindToast(); }, 12000);
 
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
