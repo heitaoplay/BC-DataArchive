@@ -40,7 +40,10 @@ Packs your BC progress into a JSON file on your own computer, and restores it la
 
 ## How to open
 
-Once installed, open **your own** information sheet (profile). A dark blue **DA** square sits at the lower-left beside the portrait — click it to open the panel. There is only one entry point; no settings-page button.
+Two ways to open it:
+
+1. **Information sheet**: open **your own** information sheet (profile). A dark blue **DA** square sits at the lower-left beside the portrait — click it.
+2. **Chat command**: type `/da` in the chat box and press Enter. Case-insensitive — `/DA`, `/Da`, `/dA` all work.
 
 ## After restoring, do I need to reload?
 

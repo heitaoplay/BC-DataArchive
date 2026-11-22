@@ -1336,6 +1336,23 @@
       }
     } catch (e) { console.warn('[DA] 移除设置按钮失败', e); }
 
+    // ── 聊天指令 /da（不区分大小写）：打开归档面板 ──
+    // CommandCombine 是 BC 注册 /指令 的正道；Tag 用全小写变体覆盖 /DA /Da /dA，
+    // 因为不同 BC 版本对 Tag 的大小写匹配行为不一致。
+    try {
+      if (typeof CommandCombine === 'function') {
+        const existing = typeof GetCommands === 'function' ? (GetCommands() || []) : [];
+        const has = (tag) => existing.some(c => (c && (c.Tag || c.Name || c)) === tag);
+        const desc = currentLang === 'en' ? 'Open the Data Archive backup & restore panel'
+          : currentLang === 'zh-TW' ? '開啟歸檔備份與還原面板' : '打开归档备份与恢复面板';
+        const variants = ['da', 'DA', 'Da', 'dA'].filter(t => !has(t));
+        if (variants.length) {
+          CommandCombine(variants.map(tag => ({ Tag: tag, Description: desc, Action: () => openFromGame() })));
+          console.log('[DA] 聊天指令已注册: /da（不区分大小写）');
+        }
+      }
+    } catch (e) { console.warn('[DA] 聊天指令注册失败', e); }
+
     // ── 资料页按钮：R134 用 DOM menubar，照 BCX 的做法插 DOM 按钮 ──
     // 老版本靠 canvas DrawButton + MouseIn，R134 已改成 DOM，canvas 按钮会被盖住点不到
     const viewingSelf = () => {

@@ -4,6 +4,12 @@
 
 ---
 
+## v3.4.0 — 聊天指令 `/da` 打开面板
+
+在聊天窗口输入 `/da` 回车即可打开归档面板，**不区分大小写**（`/DA` / `/Da` / `/dA` 均支持）。通过 BC 原生 `CommandCombine` 注册，注册前用 `GetCommands()` 检查防重复。与资料页按钮并存，设置页仍不放按钮。
+
+---
+
 ## 架构升级 — 改为 NFT 同款「加载器 + GitHub Pages」自动更新模式
 
 **变更**：油猴里安装的脚本从 110KB 的完整包改成 **2KB 轻量加载器**；核心逻辑拆到 `src/BC-DataArchive.js`，由 `build.cjs` 构建成根目录 `BC-DataArchive.js`，经 GitHub Pages 发布。
