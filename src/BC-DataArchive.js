@@ -30,6 +30,7 @@
   const FORMAT = 'BC-DATAARCHIVE';
   const LEGACY_FORMAT = 'BC-SAVE-VAULT';
   const VERSION = 3; // v3：全新 UI + i18n；v2/v1 备份均可读取
+  const SCRIPT_VERSION = '3.5.1'; // 脚本版本（显示在面板品牌区，与加载器 @version 保持一致）
 
   const STORES = [
     { key: 'character', icon: 'avatar' },
@@ -926,8 +927,8 @@
 .da-empty{padding:70px 20px;text-align:center;color:#5f7a9c;font-size:12px}
 .da-empty::before{content:'>_';display:block;color:#3d6ea3;font-size:20px;margin-bottom:12px}
 .da-confirm{grid-column:1/-1;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding-top:6px;color:#ffb3bd;font-size:11px}
-.da-modal-backdrop{position:fixed;inset:0;z-index:10020;display:flex;align-items:center;justify-content:center;padding:22px;background:#030810d9;backdrop-filter:blur(2px)}
-.da-modal-backdrop-2{z-index:10021}
+.da-modal-backdrop{position:fixed;inset:0;z-index:10050;display:flex;align-items:center;justify-content:center;padding:22px;background:#030810d9;backdrop-filter:blur(2px)}
+.da-modal-backdrop-2{z-index:10051}
 .da-modal{display:flex;flex-direction:column;width:min(1160px,100%);max-height:100%;height:min(760px,100%);overflow:hidden;border:1px solid #3d6ea3;border-radius:6px;background:#0b1424;box-shadow:0 0 40px #0a1a3066,0 20px 60px #000}
 .da-modal-head{padding:14px 18px;border-bottom:1px solid #1e3a5f;background:#0f1e33;font-size:14px;font-weight:600;color:#dcefff;flex-shrink:0}
 .da-modal-head::before{content:'> ';color:#5b9bd5}
@@ -998,7 +999,7 @@
     const brandName = panel.querySelector('.da-brand-name');
     if (brandName) brandName.innerHTML = t('brand') + ' <em>· DA</em>';
     const brandSub = panel.querySelector('.da-brand-sub');
-    if (brandSub) brandSub.textContent = t('brandFull');
+    if (brandSub) brandSub.textContent = t('brandFull') + ' · v' + SCRIPT_VERSION;
 
     // 语言切换时刷新工具栏 / 语言框文案
     if (toolbarRefs) {
@@ -1377,6 +1378,7 @@
     const brandTxt = document.createElement('div'); brandTxt.className = 'da-brand-txt';
     const brandName = document.createElement('div'); brandName.className = 'da-brand-name';
     const brandSub = document.createElement('div'); brandSub.className = 'da-brand-sub';
+    brandSub.textContent = t('brandFull') + ' · v' + SCRIPT_VERSION;
     brandTxt.append(brandName, brandSub); brand.append(brandImg, brandTxt);
     const spacer = document.createElement('div'); spacer.className = 'da-head-spacer';
 

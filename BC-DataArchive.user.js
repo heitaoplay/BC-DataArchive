@@ -3,17 +3,18 @@
 // @name:zh-CN   归档 — BC 数据备份与恢复工具
 // @name:en      Data Archive · DA — BC Backup & Restore
 // @namespace    https://github.com/heitaoplay/BC-DataArchive
-// @version      3.5.0
+// @version      3.5.1
 // @description  归档（Data Archive）— BC 数据备份与恢复工具。核心代码从 GitHub Pages 加载，刷新即更新。
 // @author       amoy_johnny（基于 Likolisu / awdrrawd 的 BC-LCE 提取重制）
-// @match        *://bondageprojects.elementfx.com/R*
-// @match        *://www.bondageprojects.elementfx.com/R*
-// @match        *://bondage-europe.com/R*
-// @match        *://www.bondage-europe.com/R*
-// @match        *://bondage-asia.com/R*
-// @match        *://www.bondage-asia.com/R*
-// @match        *://bondageeurope.com/R*
-// @match        *://www.bondageeurope.com/R*
+// @match        *://*.bondageprojects.elementfx.com/*
+// @match        *://*.bondage-asia.com/*
+// @match        *://*.bondage-europe.com/*
+// @match        *://*.bondageeurope.com/*
+// @match        *://bondageprojects.elementfx.com/*
+// @match        *://bondage-asia.com/*
+// @match        *://bondage-europe.com/*
+// @match        *://bondageeurope.com/*
+// @include      /^https:\/\/(www\.)?bondage(projects\.elementfx|-(europe|asia))\.com\/.*/
 // @icon         https://raw.githubusercontent.com/heitaoplay/BC-DataArchive/main/icon.png
 // @icon64       https://raw.githubusercontent.com/heitaoplay/BC-DataArchive/main/icon.png
 // @grant        none
