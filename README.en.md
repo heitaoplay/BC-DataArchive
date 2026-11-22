@@ -41,6 +41,17 @@ Packs your BC progress into a JSON file on your own computer, and restores it la
 
 **Moving to a new device**: copy the `.json` file over → open BC → click the DA button → Restore/Import → pick the file → follow the prompts.
 
+## Backup boundaries (what is NOT backed up)
+
+**IndexedDB data is not backed up.** IndexedDB is another browser storage meant for large amounts of data — mostly addon **image caches** (AEE wardrobe images, EmeryBC database, Liko image cache). It is excluded for two reasons:
+
+1. It can be tens or hundreds of MB; packing it into JSON would freeze the browser (liko attempted this and gave up too)
+2. It is mostly **re-downloadable cache**, not unique data — losing it has little impact
+
+Everything important (crafted items, wardrobe, outfit library, money/reputation, addon settings) lives in the four areas we do back up.
+
+**Restoring a very large wardrobe may trigger BC's "Profile data size alert".** If your wardrobe itself is large (e.g. 1 MB / 800+ outfits), BC will warn about an oversized packet — this is a **BC safety notice, not a plugin error**, and the data is usually written successfully. If you do get disconnected, just log back in. The plugin already sends one field per request, so the packet is as small as it can be.
+
 ## How to open
 
 Two ways to open it:
